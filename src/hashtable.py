@@ -1,21 +1,25 @@
 # '''
 # Linked List hash table key/value pair
 # '''
+
+
 class LinkedPair:
     def __init__(self, key, value):
         self.key = key
         self.value = value
         self.next = None
 
+
 class HashTable:
     '''
     A hash table that with `capacity` buckets
     that accepts string keys
     '''
+
     def __init__(self, capacity):
         self.capacity = capacity  # Number of buckets in the hash table
         self.storage = [None] * capacity
-
+        self.count = 0
 
     def _hash(self, key):
         '''
@@ -23,8 +27,11 @@ class HashTable:
 
         You may replace the Python hash with DJB2 as a stretch goal.
         '''
-        return hash(key)
-
+        hashsum = 0
+        for char in str(key):
+            hashsum += ord(char)
+            hashsum = hashsum % self.capacity
+        return hashsum
 
     def _hash_djb2(self, key):
         '''
@@ -34,14 +41,12 @@ class HashTable:
         '''
         pass
 
-
     def _hash_mod(self, key):
         '''
         Take an arbitrary key and return a valid integer index
         within the storage capacity of the hash table.
         '''
-        return self._hash(key) % self.capacity
-
+        pass
 
     def insert(self, key, value):
         '''
@@ -51,9 +56,17 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
-
-
+        self.count += 1
+        index = self._hash(key)
+        node = self.storage[index]
+        if node is None:
+            self.storage[index] = LinkedPair(key, value)
+            return
+        prev = node
+        while node is not None:
+            prev = node
+            node = node.next
+        prev.next = LinkedPair(key, value)
 
     def remove(self, key):
         '''
@@ -65,7 +78,6 @@ class HashTable:
         '''
         pass
 
-
     def retrieve(self, key):
         '''
         Retrieve the value stored with the given key.
@@ -76,7 +88,6 @@ class HashTable:
         '''
         pass
 
-
     def resize(self):
         '''
         Doubles the capacity of the hash table and
@@ -84,8 +95,11 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
-
+        self.capacity *= 2
+        new_storage = [None] * self.capacity
+        for i in range(self.count):
+            new_storage[i] = self.storage[i]
+        self.storage = new_storage
 
 
 if __name__ == "__main__":
