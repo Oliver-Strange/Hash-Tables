@@ -76,7 +76,21 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+        index = self._hash(key)
+        node = self.storage[index]
+        while node is not None and node.key is not key:
+            prev = node
+            node = node.next
+        if node is None:
+            return None
+        else:
+            self.count -= 1
+            result = node.value
+            if prev is None:
+                node = None
+            else:
+                prev.next = prev.next.next
+            return result
 
     def retrieve(self, key):
         '''
@@ -86,7 +100,14 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+        index = self._hash(key)
+        node = self.storage[index]
+        while node is not None and node.key is not key:
+            node = node.next
+        if node is None:
+            return None
+        else:
+            return node.value
 
     def resize(self):
         '''
