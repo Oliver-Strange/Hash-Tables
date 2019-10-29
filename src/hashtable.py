@@ -27,11 +27,7 @@ class HashTable:
 
         You may replace the Python hash with DJB2 as a stretch goal.
         '''
-        hashsum = 0
-        for char in str(key):
-            hashsum += ord(char)
-            hashsum = hashsum % self.capacity
-        return hashsum
+        return hash(key)
 
     def _hash_djb2(self, key):
         '''
@@ -46,7 +42,11 @@ class HashTable:
         Take an arbitrary key and return a valid integer index
         within the storage capacity of the hash table.
         '''
-        pass
+        hashsum = 0
+        for char in str(key):
+            hashsum += ord(char)
+            hashsum = hashsum % self.capacity
+        return hashsum
 
     def insert(self, key, value):
         '''
@@ -57,7 +57,7 @@ class HashTable:
         Fill this in.
         '''
         self.count += 1
-        index = self._hash(key)
+        index = self._hash_mod(key)
         node = self.storage[index]
         if node is None:
             self.storage[index] = LinkedPair(key, value)
@@ -76,21 +76,16 @@ class HashTable:
 
         Fill this in.
         '''
-        index = self._hash(key)
+        index = self._hash_mod(key)
         node = self.storage[index]
-        while node is not None and node.key is not key:
-            prev = node
-            node = node.next
-        if node is None:
-            return None
+
+        if node is not None and node.next is None:
+            self.storage[index] = None
+        elif node is not None and node.next is not None:
+            prevNode = node.next
+            self.storage[index] = prevNode
         else:
-            self.count -= 1
-            result = node.value
-            if prev is None:
-                node = None
-            else:
-                prev.next = prev.next.next
-            return result
+            print("No key found")
 
     def retrieve(self, key):
         '''
@@ -100,7 +95,7 @@ class HashTable:
 
         Fill this in.
         '''
-        index = self._hash(key)
+        index = self._hash_mod(key)
         node = self.storage[index]
         while node is not None and node.key is not key:
             node = node.next
@@ -116,11 +111,18 @@ class HashTable:
 
         Fill this in.
         '''
-        old_cap = self.storage
-        self.capacity = self.capacity * 2
+        old_storage = self.storage
+        for i in range(0, len(self.storage)):
+            old_storage[i] == self.storage[i]
+        self.capacity *= 2
         self.storage = [None] * self.capacity
-        for i in range(self.capacity):
-            old_cap[i] == self.storage[i]
+        for i in old_storage:
+            if i is not None:
+                current_node = i
+                while current_node.next is not None:
+                    self.insert(current_node.key, current_node.value)
+                    current_node = current_node.next
+                self.insert(current_node.key, current_node.value)
 
 
 if __name__ == "__main__":
