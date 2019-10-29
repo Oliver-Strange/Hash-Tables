@@ -35,7 +35,10 @@ class HashTable:
 
         OPTIONAL STRETCH: Research and implement DJB2
         '''
-        pass
+        hash = 5381
+        for x in s:
+            hash = ((hash << 5) + hash) + ord(x)
+        return hash & 0xFFFFFFFF
 
     def _hash_mod(self, key):
         '''
@@ -59,14 +62,16 @@ class HashTable:
         self.count += 1
         index = self._hash_mod(key)
         node = self.storage[index]
-        if node is None:
-            self.storage[index] = LinkedPair(key, value)
-            return
-        prev = node
-        while node is not None:
-            prev = node
+
+        while node is not None and node.key != key:
             node = node.next
-        prev.next = LinkedPair(key, value)
+
+        if node is None:
+            newNode = LinkedPair(key, value)
+            newNode.next = self.storage[index]
+            self.storage[index] = newNode
+        else:
+            node.value = value
 
     def remove(self, key):
         '''
